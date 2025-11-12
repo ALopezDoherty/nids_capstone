@@ -1,0 +1,8 @@
+nids_env/
+data/
+models/
+results/
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints
