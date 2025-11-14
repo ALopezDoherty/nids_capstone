@@ -4,7 +4,7 @@ import os
 def check_data_structure():
     # Try multiple possible data paths
     possible_paths = [
-    # add path here
+    '/home/aldo/nids_capstone/data/archive/cicids2017_cleaned.csv'
     ]
     
     for path in possible_paths:
