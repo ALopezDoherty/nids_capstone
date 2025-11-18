@@ -1,4 +1,4 @@
-```markdown
+
 # Network Intrusion Detection: Comparative Analysis of ML and LLM Approaches
 
 Senior Capstone Research Project | Computer Science | Network Security
@@ -34,8 +34,6 @@ Key finding: Packet length statistics and flow characteristics emerged as the mo
 - Research focus: Assessing LLM capability to understand network patterns through natural language processing
 
 ## Project Structure
-
-```
 nids_capstone/
 ├── src/                   # Source code
 │   ├── train_ml.py        # Machine learning training
