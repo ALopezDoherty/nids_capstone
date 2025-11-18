@@ -50,7 +50,7 @@ nids_capstone/
 ├── models/               # Trained models (gitignored)
 ├── results/             # Evaluation results and visualizations
 └── docs/               # Documentation and research notes
-```
+
 
 ## Installation and Usage
 
