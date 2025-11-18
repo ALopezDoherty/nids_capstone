@@ -87,7 +87,7 @@ cd ../..
 python src/train_ml.py
 
 # Evaluate LLM approach
-python src/train_llm_docker.py
+python src/train_llm.py
 
 # Compare results
 python src/compare_results.py
@@ -95,7 +95,7 @@ python src/compare_results.py
 
 ## Research Methodology
 
-1. **Data Preparation**: CICIDS2017 dataset preprocessing and feature engineering
+1. **Data Preparation**: CICIDS2017 dataset preprocessing and feature creation
 2. **Model Training**: Random Forest implementation with class balancing for dataset imbalance
 3. **LLM Integration**: Dockerized Ollama deployment with structured prompt engineering
 4. **Evaluation Framework**: Standardized metrics across all approaches
