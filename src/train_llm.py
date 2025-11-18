@@ -2,101 +2,118 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score, classification_report
 import json
-import os
 from datetime import datetime
 
-def test_llm_approach():
-    print("🧠 TESTING LLM APPROACH...")
+def train_llm():
+    print("LLM TESTING...")
     
-    # 1. Load data
-    data = pd.read_csv('data/processed/cleaned_data.csv')
+    # Load data
+    data = pd.read_csv('/home/aldo/nids_capstone/data/archive/cicids2017_cleaned.csv')
     
-    # 2. Take a small sample for quick testing (LLMs are slow/expensive)
-    sample_data = data.sample(50, random_state=42)  # Small sample for testing
+    # Use the same label column as ML script
+    LABEL_COLUMN = 'Label'  # Change this to match your label column
     
-    # 3. Convert network data to text descriptions
-    def create_prompt(row):
-        # Create a text description of the network connection
-        # ADAPT based on your actual column names
+    # Take a sample for testing
+    sample_data = data.sample(100, random_state=42)
+    
+    # Convert to text descriptions
+    def create_llm_prompt(row):
+        # Create a natural language description
         prompt = f"""
-        Analyze this network connection:
-        - Protocol: {row.get('protocol_type', 'N/A')}
-        - Duration: {row.get('duration', 'N/A')} seconds
-        - Source Bytes: {row.get('src_bytes', 'N/A')}
-        - Destination Bytes: {row.get('dst_bytes', 'N/A')}
-        - Connection State: {row.get('conn_state', 'N/A')}
+        Analyze this network connection for intrusion detection:
         
-        Based on these features, is this likely to be:
-        A) Normal network traffic
+        Connection Features:
+        - Protocol: {row.get('Protocol', 'N/A')}
+        - Duration: {row.get('Duration', 'N/A')} seconds
+        - Source Bytes: {row.get('Src Bytes', 'N/A')}
+        - Destination Bytes: {row.get('Dst Bytes', 'N/A')}
+        - Source Packets: {row.get('Tot Fwd Pkts', 'N/A')}
+        - Destination Packets: {row.get('Tot Bwd Pkts', 'N/A')}
+        
+        Based on these network traffic patterns, classify this connection as either:
+        A) Normal legitimate traffic
         B) Suspicious intrusion attempt
         
-        Answer with only A or B:
+        Provide only your final classification (A or B):
         """
         return prompt
     
-    # 4. Mock LLM function (replace with real API later)
-    def mock_llm_prediction(prompt, true_label):
+    # mock LLM with better heuristics
+    def llm_prediction(prompt, row):
         """
-        Simple rule-based mock. Replace this with:
-        - OpenAI API
-        - Hugging Face API  
-        - Local LLM
+        Better rule-based mock. Replace with real LLM API later.
         """
-        # Simple heuristic rules (you'll replace this)
-        if 'src_bytes' in prompt and int(prompt.split('Source Bytes: ')[1].split()[0]) > 1000:
-            return 'B'  # intrusion
-        elif 'duration' in prompt and float(prompt.split('Duration: ')[1].split()[0]) < 0.1:
-            return 'B'  # intrusion
+        # Simple heuristics based on common attack patterns
+        src_bytes = row.get('Src Bytes', 0)
+        dst_bytes = row.get('Dst Bytes', 0)
+        duration = row.get('Duration', 0)
+        
+        # Rule 1: Very short duration with high bytes = possible DoS
+        if duration < 0.1 and (src_bytes > 1000 or dst_bytes > 1000):
+            return 'B'
+        # Rule 2: Zero source bytes but destination bytes = possible scanning
+        elif src_bytes == 0 and dst_bytes > 0:
+            return 'B'
+        # Rule 3: Many source packets in short time = possible flooding
+        elif row.get('Tot Fwd Pkts', 0) > 100 and duration < 1.0:
+            return 'B'
         else:
-            return 'A'  # normal
+            return 'A'
     
-    # 5. Generate predictions
+    # Generate predictions
     predictions = []
+    actual_labels = []
     llm_responses = []
     
     print("Generating LLM predictions...")
     for idx, row in sample_data.iterrows():
-        prompt = create_prompt(row)
-        true_label = row['label']
+        prompt = create_llm_prompt(row)
+        true_label = row[LABEL_COLUMN]
         
-        # Convert true label to A/B format
-        true_letter = 'B' if true_label == 1 else 'A'
+        # Convert true label to binary (0=normal, 1=attack)
+        if true_label == 'BENIGN' or true_label == 0:
+            true_binary = 0
+        else:
+            true_binary = 1
         
         # Get LLM prediction
-        pred_letter = mock_llm_prediction(prompt, true_label)
-        predictions.append(1 if pred_letter == 'B' else 0)
+        pred_letter = llm_prediction(prompt, row)
+        pred_binary = 1 if pred_letter == 'B' else 0
+        
+        predictions.append(pred_binary)
+        actual_labels.append(true_binary)
         
         llm_responses.append({
-            'prompt': prompt,
-            'true_label': int(true_label),
-            'predicted_label': 1 if pred_letter == 'B' else 0,
-            'true_letter': true_letter,
-            'pred_letter': pred_letter
+            'true_label': str(true_label),
+            'true_binary': true_binary,
+            'predicted_binary': pred_binary,
+            'correct': true_binary == pred_binary
         })
     
-    # 6. Evaluate
-    accuracy = accuracy_score(sample_data['label'], predictions)
+    # Evaluate
+    accuracy = accuracy_score(actual_labels, predictions)
     
-    print(f"📊 LLM Results (Mock):")
+    print(f"LLM RESULTS:")
     print(f"Accuracy: {accuracy:.4f}")
     print(f"Samples tested: {len(sample_data)}")
     print("\nClassification Report:")
-    print(classification_report(sample_data['label'], predictions))
+    print(classification_report(actual_labels, predictions))
     
-    # 7. Save results
+    # Save results
     results = {
         'model': 'LLM (Mock)',
         'accuracy': float(accuracy),
         'samples_tested': len(sample_data),
         'timestamp': datetime.now().isoformat(),
-        'responses': llm_responses
+        'correct_predictions': sum(1 for r in llm_responses if r['correct']),
+        'total_predictions': len(llm_responses)
     }
     
     with open('results/llm_results.json', 'w') as f:
         json.dump(results, f, indent=2)
     
-    print("✅ LLM testing complete! Results saved to results/")
+    print("LLM testing complete!")
     return accuracy
 
 if __name__ == "__main__":
-    test_llm_approach()
+    train_llm()
