@@ -33,23 +33,24 @@ Key finding: Packet length statistics and flow characteristics emerged as the mo
 - Status: Docker Ollama implementation complete, evaluation in progress
 - Research focus: Assessing LLM capability to understand network patterns through natural language processing
 
-## Project Structure
+PROJECT STRUCTURE
 nids_capstone/
-├── src/                   # Source code
-│   ├── train_ml.py        # Machine learning training
-│   ├── train_llm.py       # LLM evaluation
-│   ├── compare_results.py # Performance comparison
-│
-├── docker/                # Container configuration
-│   └── ollama/
-│       ├── docker-compose.yml
-│       ├── start-ollama.sh
-│       └── stop-ollama.sh
-├── data/                  # Dataset (gitignored)
-│   └── processed/
-├── models/               # Trained models (gitignored)
-├── results/             # Evaluation results and visualizations
-└── docs/               # Documentation and research notes
+  src/
+    train_ml.py (Machine learning training)
+    train_llm.py (LLM evaluation)
+    compare_results.py (Performance comparison)
+    data_loader.py (Data preprocessing utilities)
+    utils.py (Common functions)
+  docker/
+    ollama/
+      docker-compose.yml
+      start-ollama.sh
+      stop-ollama.sh
+  data/ (Dataset - gitignored)
+    processed/
+  models/ (Trained models - gitignored)
+  results/ (Evaluation results and visualizations)
+  docs/ (Documentation and research notes)
 
 
 ## Installation and Usage
