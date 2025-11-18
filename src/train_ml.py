@@ -13,12 +13,12 @@ def train_final_model():
     print("FINAL ML TRAINING...")
     
     # Load data
-    data = pd.read_csv('data/processed/cleaned_data.csv')
+    data = pd.read_csv('/home/aldo/nids_capstone/data/archive/cicids2017_cleaned.csv')
     print(f"Data loaded: {data.shape}")
     
-    # === REPLACE THIS WITH YOUR ACTUAL LABEL COLUMN ===
-    LABEL_COLUMN = 'Label'  # Change this based on find_label.py output
-    
+    LABEL_COLUMN = 'Normal Traffic' 'Port Scanning' 'Web Attacks' 'Brute Force' 'DDoS' 'Bots' 'DoS' 
+    NORMAL_VALUE = 'Normal Traffic'
+
     if LABEL_COLUMN not in data.columns:
         print(f"Column '{LABEL_COLUMN}' not found. Available columns: {list(data.columns)}")
         return
@@ -26,6 +26,17 @@ def train_final_model():
     # Prepare features and target
     X = data.drop(LABEL_COLUMN, axis=1)
     y = data[LABEL_COLUMN]
+
+    # Convert text labels to binary (0=normal, 1=attack)
+    print("🔀 Converting text labels to binary (0=normal, 1=attack)...")
+    print(f"Before conversion: {y.value_counts()}")
+    
+    y_binary = (y != NORMAL_VALUE).astype(int)  # This converts 'Normal Traffic' to 0, everything else to 1
+    y = y_binary
+    
+    print(f"After conversion: {pd.Series(y).value_counts()}")
+    print(f"  0 = Normal Traffic")
+    print(f"  1 = All Attacks (Port Scanning, Web Attacks, Brute Force, DDoS, Bots, DoS)")
     
     # If labels are text (like 'BENIGN', 'DoS'), convert to binary
     if y.dtype == 'object':
