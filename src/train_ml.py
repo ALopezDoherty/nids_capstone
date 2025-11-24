@@ -46,12 +46,12 @@ def train_final_model():
     attack_count = binary_counts.get(1, 0)
     total_count = len(y)
     
-    print(f"\n📊 Class Distribution:")
+    print(f"\nClass Distribution:")
     print(f"  Normal traffic: {normal_count} ({normal_count/total_count*100:.1f}%)")
     print(f"  Attack traffic: {attack_count} ({attack_count/total_count*100:.1f}%)")
     
     if normal_count == 0 or attack_count == 0:
-        print("❌ ERROR: Only one class found in data! Cannot train binary classifier.")
+        print("ERROR: Only one class found in data! Cannot train binary classifier.")
         return
     
     # Split data
@@ -59,7 +59,7 @@ def train_final_model():
         X, y, test_size=0.2, random_state=42, stratify=y
     )
     
-    print(f"\n📈 Training set: {X_train.shape}, Test set: {X_test.shape}")
+    print(f"\nTraining set: {X_train.shape}, Test set: {X_test.shape}")
     
     # Calculate class weights to handle imbalance
     try:
@@ -74,11 +74,11 @@ def train_final_model():
         print(f"  Class 0 (normal) weight: {class_weight_dict[0]:.2f}")
         print(f"  Class 1 (attack) weight: {class_weight_dict[1]:.2f}")
     except:
-        print("⚠️  Using default class weights")
+        print("Using default class weights")
         class_weight_dict = 'balanced'
     
     # Train model with class weights
-    print("🤖 Training Random Forest with class weights...")
+    print("Training Random Forest with class weights...")
     model = RandomForestClassifier(
         n_estimators=100,
         max_depth=15,
@@ -92,7 +92,7 @@ def train_final_model():
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     
-    print(f"\n📊 FINAL RESULTS:")
+    print(f"\nFINAL RESULTS:")
     print(f"Accuracy: {accuracy:.4f}")
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
@@ -103,7 +103,7 @@ def train_final_model():
         'importance': model.feature_importances_
     }).sort_values('importance', ascending=False)
     
-    print("\n🔝 Top 10 Most Important Features:")
+    print("\nTop 10 Most Important Features:")
     print(feature_importance.head(10))
     
     # Save everything

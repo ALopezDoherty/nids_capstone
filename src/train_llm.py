@@ -126,7 +126,7 @@ def train_llm_docker():
     print("LLM TRAINING WITH DOCKER OLLAMA...")
     
     # Load data
-    data = pd.read_csv('data/processed/cleaned_data.csv')
+    data = pd.read_csv('/home/aldo/nids_capstone/data/archive/cicids2017_cleaned.csv')
     print(f"Data loaded: {data.shape}")
     
     # Set label parameters
